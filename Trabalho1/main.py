@@ -57,6 +57,26 @@ def a_estrela(inicio, objetivo):
 
     return None, float('inf')
 
-caminho, custo = a_estrela("Curitiba", "Campo Mourão")
-print("Melhor caminho:", caminho)
-print("Custo total:", custo)
+def main():
+    print("Cidades Disponiveís:")
+    for cidade in grafo.keys():
+        print('-', cidade)
+    
+    partida = str(input("Digite sua Partida: ").strip())
+    chegada = str(input("Digite sua Chegada: ").strip())
+    
+    if partida not in grafo or chegada not in grafo:
+        print("Erro: cidade inválida.")
+        return
+    
+    caminho, custo = a_estrela(partida,chegada)
+    
+    if caminho:
+        print("\nMelhor caminho:", " → ".join(caminho))
+        print("Custo total estimado:", custo, "km")
+    else:
+        print("Não há caminho disponível entre essas cidades.")
+
+
+
+main()
