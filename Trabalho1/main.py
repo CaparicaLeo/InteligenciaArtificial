@@ -1,22 +1,23 @@
+import heapq
+
 grafo = {
-    "Foz do Iguaçu": [("Cascavel", 125)], #Check
-    "Cascavel": [("Foz do Iguaçu", 125), ("Campo Mourão", 150), ("Guarapuava", 200)], #Check
-    "Campo Mourão": [("Cascavel", 150), ("Maringá", 90), ("Guarapuava", 175)], #Check
-    "Maringá": [("Campo Mourão", 90), ("Mandaguari", 35)], #Check
-    "Mandaguari": [("Maringá", 35), ("Arapongas", 25), ("Jandaia do Sul", 10)], #Check  
-    "Arapongas": [("Mandaguari", 25), ("Apucarana", 20), ("Londrina", 30)], #Check
-    "Apucarana": [("Arapongas", 20), ("Jandaia do Sul", 20), ("Ponta Grossa", 205)],#Check
-    "Jandaia do Sul": [("Apucarana", 20), ("Mandaguari", 10), ("Guarapuava", 220)], #Check
-    "Guarapuava": [("Jandaia do Sul", 220), ("Cascavel", 200), ("Irati", 90), ("Ponta Grossa", 150), ("Campo Mourão", 175)], #Check
-    "Irati": [("Guarapuava", 90), ("Curitiba", 135)],#Check
-    "Curitiba": [("Irati", 135), ("Ponta Grossa", 110)],#Check
-    "Ponta Grossa": [("Curitiba", 110), ("Guarapuava", 150), ("Apucarana", 205), ("Ourinhos", 275)], #Check
-    "Ourinhos": [("Ponta Grossa", 275), ("Londrina", 125)], #Check
-    "Londrina": [("Ourinhos", 125), ("Arapongas", 30)] #Check
+    "Foz do Iguaçu": [("Cascavel", 125)],
+    "Cascavel": [("Foz do Iguaçu", 125), ("Campo Mourão", 150), ("Guarapuava", 200)],
+    "Campo Mourão": [("Cascavel", 150), ("Maringá", 90), ("Guarapuava", 175)],
+    "Maringá": [("Campo Mourão", 90), ("Mandaguari", 35)],
+    "Mandaguari": [("Maringá", 35), ("Arapongas", 25), ("Jandaia do Sul", 10)],
+    "Arapongas": [("Mandaguari", 25), ("Apucarana", 20), ("Londrina", 30)],
+    "Apucarana": [("Arapongas", 20), ("Jandaia do Sul", 20), ("Ponta Grossa", 205)],
+    "Jandaia do Sul": [("Apucarana", 20), ("Mandaguari", 10), ("Guarapuava", 220)],
+    "Guarapuava": [("Jandaia do Sul", 220), ("Cascavel", 200), ("Irati", 90), ("Ponta Grossa", 150), ("Campo Mourão", 175)],
+    "Irati": [("Guarapuava", 90), ("Curitiba", 135)],
+    "Curitiba": [("Irati", 135), ("Ponta Grossa", 110)],
+    "Ponta Grossa": [("Curitiba", 110), ("Guarapuava", 150), ("Apucarana", 205), ("Ourinhos", 275)],
+    "Ourinhos": [("Ponta Grossa", 275), ("Londrina", 125)],
+    "Londrina": [("Ourinhos", 125), ("Arapongas", 30)]
 }
 
-#Heuristica Partindo de Curitiba
-heuristica = {  
+heuristica = {
     "Foz do Iguaçu": 400,
     "Cascavel": 320,
     "Campo Mourão": 290,
@@ -33,11 +34,9 @@ heuristica = {
     "Londrina": 210
 }
 
-import heapq
-
 def a_estrela(inicio, objetivo):
     fila = []
-    heapq.heappush(fila, (0 + heuristica[inicio], 0, inicio, [inicio]))
+    heapq.heappush(fila, (heuristica[inicio], 0, inicio, [inicio]))
     visitados = set()
 
     while fila:
@@ -58,25 +57,39 @@ def a_estrela(inicio, objetivo):
     return None, float('inf')
 
 def main():
-    print("Cidades Disponiveís:")
+    print("==== CIDADES DISPONÍVEIS ====")
     for cidade in grafo.keys():
-        print('-', cidade)
-    
-    partida = str(input("Digite sua Partida: ").strip())
-    chegada = str(input("Digite sua Chegada: ").strip())
-    
-    if partida not in grafo or chegada not in grafo:
-        print("Erro: cidade inválida.")
-        return
-    
-    caminho, custo = a_estrela(partida,chegada)
-    
-    if caminho:
-        print("\nMelhor caminho:", " → ".join(caminho))
-        print("Custo total estimado:", custo, "km")
-    else:
-        print("Não há caminho disponível entre essas cidades.")
+        print(" -", cidade)
 
+    print("\n== DIGITE OS NOMES DAS CIDADES EXATAMENTE COMO ACIMA ==")
+    partida = input("\nCidade de partida: ").strip()
+    parada = input("Cidade de parada intermediária: ").strip()
+    chegada = input("Cidade de destino final: ").strip()
+
+    if partida not in grafo:
+        print(f"\n[ERRO] Cidade de partida '{partida}' não encontrada.")
+        return
+    if parada not in grafo:
+        print(f"\n[ERRO] Cidade de parada '{parada}' não encontrada.")
+        return
+    if chegada not in grafo:
+        print(f"\n[ERRO] Cidade de destino '{chegada}' não encontrada.")
+        return
+
+    caminho1, custo1 = a_estrela(partida, parada)
+    caminho2, custo2 = a_estrela(parada, chegada)
+
+    if caminho1 and caminho2:
+        # Remover duplicidade da parada se ela aparecer duas vezes
+        caminho_completo = caminho1 + caminho2[1:] if caminho1[-1] == caminho2[0] else caminho1 + caminho2
+        custo_total = custo1 + custo2
+
+        print("\n==== ROTA CALCULADA ====")
+        print("Caminho: ", " → ".join(caminho_completo))
+        print(f"Custo total estimado: {custo_total} km")
+        print("=========================")
+    else:
+        print("\n[ERRO] Não foi possível encontrar um caminho entre as cidades informadas.")
 
 
 main()
